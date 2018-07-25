@@ -3,5 +3,5 @@ module.exports.getDate = () => {
   const dd = today.getDate();
   const mm = today.getMonth() + 1;
   const yy = today.getFullYear();
-  return `${dd}-${mm}-${yy}`;
+  return `${mm}-${dd}-${yy}`;
 };
