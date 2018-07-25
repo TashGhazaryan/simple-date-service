@@ -76,13 +76,6 @@ workflows:
                 - dev
           requires:
             - test
-      - post-deploy:
-          filters:
-            branches:
-              only:
-                - dev
-          requires:
-            - deploy
   build_and_deploy_master:
     jobs:
       - build:
