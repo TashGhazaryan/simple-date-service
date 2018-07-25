@@ -5,6 +5,6 @@ describe("Tests date format", () => {
   it("Date format should be dd-mm-yyyy", () => {
     const date = getDate();
     expect(date).to.exist;
-    expect(date).to.equal("25-7-2018");
+    expect(date).to.equal("7-25-2018");
   });
 });
