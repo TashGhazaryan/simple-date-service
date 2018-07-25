@@ -1,0 +1,110 @@
+defaults: &defaults
+  working_directory: ~/repo
+  docker:
+    - image: circleci/node:8
+
+version: 2
+jobs:
+  build:
+    <<: *defaults
+
+    steps:
+      - checkout
+
+      - restore_cache:
+          keys:
+          - v1-dependencies-{{ checksum "package-lock.json" }}
+          - v1-dependencies-
+
+      - run:
+          name: Installing node modules
+          command: npm install
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package-lock.json" }}
+
+      - persist_to_workspace:
+          root: "~"
+          paths:
+            - repo
+
+  test:
+    <<: *defaults
+
+    steps:
+      - attach_workspace:
+          at: "~"
+
+      - run:
+          name: Testing
+          command: npm test
+
+  deploy:
+    <<: *defaults
+
+    steps:
+      - attach_workspace:
+          at: "~"
+
+      - run:
+          name: save registry
+          command: npm set registry https://registry.npmjs.org/:_authToken=$npm_TOKEN
+
+      # - run:
+      #     name: Authenticate with registry
+      #     command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/.npmrc
+
+      - run:
+          name: Publishing package to npm
+          command: npm publish
+
+
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              ignore:
+                - master
+      - test:
+          requires:
+            - build
+      - deploy:
+          filters:
+            branches:
+              only:
+                - dev
+          requires:
+            - test
+      - post-deploy:
+          filters:
+            branches:
+              only:
+                - dev
+          requires:
+            - deploy
+  build_and_deploy_master:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only:
+                - master
+      - test:
+          requires:
+            - build
+      - hold:
+          type: approval
+          requires:
+           - test
+      - deploy:
+          filters:
+            branches:
+              only:
+                - master
+          requires:
+            - hold
