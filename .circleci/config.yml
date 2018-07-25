@@ -49,12 +49,8 @@ jobs:
           at: "~"
 
       - run:
-          name: save registry
-          command: npm set registry https://registry.npmjs.org/:_authToken=$npm_TOKEN
-
-      # - run:
-      #     name: Authenticate with registry
-      #     command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/.npmrc
+          name: Authenticate with registry
+          command: echo "//registry.npmjs.org/:_authToken=$npm_TOKEN" > ~/.npmrc
 
       - run:
           name: Publishing package to npm
@@ -80,13 +76,6 @@ workflows:
                 - dev
           requires:
             - test
-      - post-deploy:
-          filters:
-            branches:
-              only:
-                - dev
-          requires:
-            - deploy
   build_and_deploy_master:
     jobs:
       - build:
